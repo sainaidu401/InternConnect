@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 export default function StudentDashboard() {
   const [showPosts, setShowPosts] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [showApplications, setShowApplications] = useState(false);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -18,6 +20,20 @@ export default function StudentDashboard() {
       setPosts(data);
     } catch (err) {
       console.error("Error fetching posts:", err);
+    }
+  };
+
+  const fetchApplications = async () => {
+    const studentEmail = localStorage.getItem("email");
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/applications/by-student/${studentEmail}`
+      );
+      const data = await res.json();
+      setApplications(data);
+      setShowApplications(true);
+    } catch (err) {
+      console.error("Error fetching applications:", err);
     }
   };
 
@@ -163,9 +179,45 @@ export default function StudentDashboard() {
             <p className="text-sm text-neutral-500 mt-2">
               Track the status of your internship applications.
             </p>
-            <button className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
-              Check Status
+            <button
+              onClick={fetchApplications}
+              className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+            >
+              {showApplications ? "Check Applications" : "Check Status"}
             </button>
+
+            {showApplications && (
+              <div className="mt-4 space-y-3">
+                {applications.length === 0 ? (
+                  <p className="text-sm text-neutral-500">
+                    No applications submitted yet.
+                  </p>
+                ) : (
+                  applications.map((app, index) => (
+                    <div
+                      key={index}
+                      className="p-3 border rounded-md text-sm dark:text-white dark:border-zinc-700"
+                    >
+                      <p>📌 <strong>Post ID:</strong> {app.jobRole}</p>
+                      <p>
+                        📄 <strong>Status:</strong>{" "}
+                        <span
+                          className={`${
+                            app.status === "Accepted"
+                              ? "text-green-500"
+                              : app.status === "Rejected"
+                              ? "text-red-500"
+                              : "text-yellow-500"
+                          }`}
+                        >
+                          {app.status || "Pending"}
+                        </span>
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

@@ -58,12 +58,36 @@ export default function EntrepreneurDashboard() {
   const fetchApplications = async () => {
     const entrepreneurEmail = localStorage.getItem("email");
     try {
-      const res = await fetch(`http://localhost:5000/api/applications/by-entrepreneur/${entrepreneurEmail}`);
+      const res = await fetch(
+        `http://localhost:5000/api/applications/by-entrepreneur/${entrepreneurEmail}`
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch applications");
 
       setApplications(data);
       setShowApplications(true);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const updateStatus = async (applicationId, newStatus) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/applications/${applicationId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update status");
+
+      fetchApplications(); // Refresh the list
     } catch (err) {
       alert(err.message);
     }
@@ -201,9 +225,43 @@ export default function EntrepreneurDashboard() {
                     {applications.map((app, index) => (
                       <li
                         key={index}
-                        className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md text-sm text-neutral-900 dark:text-white"
+                        className="p-4 bg-neutral-100 dark:bg-neutral-800 rounded-md text-sm text-neutral-900 dark:text-white flex justify-between items-center"
                       >
-                        📧 {app.studentEmail} — <span className="italic text-neutral-500">({app.jobRole})</span>
+                        <div>
+                          📧 {app.studentEmail} —{" "}
+                          <span className="italic text-neutral-500">({app.jobRole})</span>
+                          <br />
+                          <span className="text-xs text-neutral-400">
+                            Status:{" "}
+                            <span
+                              className={`${
+                                app.status === "Accepted"
+                                  ? "text-green-500"
+                                  : app.status === "Rejected"
+                                  ? "text-red-500"
+                                  : "text-yellow-500"
+                              }`}
+                            >
+                              {app.status || "Pending"}
+                            </span>
+                          </span>
+                        </div>
+                        {app.status !== "Accepted" && app.status !== "Rejected" && (
+                          <div className="flex space-x-2">
+                            <button
+                              className="px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded"
+                              onClick={() => updateStatus(app._id, "Accepted")}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded"
+                              onClick={() => updateStatus(app._id, "Rejected")}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

@@ -8,5 +8,7 @@ const {
 // POST /api/applications - Submit a new application
 router.post("/", applicationController.submitApplication);
 router.get("/by-entrepreneur/:email", getApplicationsByEntrepreneur);
+router.get("/by-student/:email", applicationController.getApplicationsByStudent);
+router.put("/:applicationId/status", applicationController.updateApplicationStatus);
 
 module.exports = router;
