@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 
 export default function EntrepreneurDashboard() {
   const [showForm, setShowForm] = useState(false);
+  const [showApplications, setShowApplications] = useState(false);
+  const [applications, setApplications] = useState([]);
   const [formData, setFormData] = useState({
     jobRole: "",
     description: "",
@@ -25,14 +27,13 @@ export default function EntrepreneurDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const entrepreneurEmail = localStorage.getItem("email"); // ✅ get email from localStorage
-
+      const entrepreneurEmail = localStorage.getItem("email");
       const res = await fetch("http://localhost:5000/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          entrepreneurEmail, // ✅ include email in request
+          entrepreneurEmail,
         }),
       });
 
@@ -49,6 +50,20 @@ export default function EntrepreneurDashboard() {
         stipend: "",
         openings: "",
       });
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const fetchApplications = async () => {
+    const entrepreneurEmail = localStorage.getItem("email");
+    try {
+      const res = await fetch(`http://localhost:5000/api/applications/by-entrepreneur/${entrepreneurEmail}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch applications");
+
+      setApplications(data);
+      setShowApplications(true);
     } catch (err) {
       alert(err.message);
     }
@@ -167,9 +182,34 @@ export default function EntrepreneurDashboard() {
             <p className="text-sm text-neutral-500 mt-2">
               View, accept, or reject applicants.
             </p>
-            <button className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
+            <button
+              onClick={fetchApplications}
+              className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+            >
               View Applications
             </button>
+
+            {showApplications && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold text-neutral-800 dark:text-white mb-2">
+                  Received Applications:
+                </h3>
+                {applications.length === 0 ? (
+                  <p className="text-sm text-neutral-500">No applications yet.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {applications.map((app, index) => (
+                      <li
+                        key={index}
+                        className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md text-sm text-neutral-900 dark:text-white"
+                      >
+                        📧 {app.studentEmail}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </motion.div>
