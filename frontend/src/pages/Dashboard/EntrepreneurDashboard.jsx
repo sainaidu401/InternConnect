@@ -203,7 +203,7 @@ export default function EntrepreneurDashboard() {
                         key={index}
                         className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md text-sm text-neutral-900 dark:text-white"
                       >
-                        📧 {app.studentEmail}
+                        📧 {app.studentEmail} — <span className="italic text-neutral-500">({app.jobRole})</span>
                       </li>
                     ))}
                   </ul>

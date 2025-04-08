@@ -10,6 +10,10 @@ const applicationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  jobRole: {
+    type: String,
+    required: true
+  },
   appliedAt: {
     type: Date,
     default: Date.now

@@ -1,6 +1,7 @@
 const Application = require('../models/Application');
 const Post = require("../models/Post");
 
+// Submit a new application
 exports.submitApplication = async (req, res) => {
   try {
     const { postId, studentEmail } = req.body;
@@ -15,7 +16,19 @@ exports.submitApplication = async (req, res) => {
       return res.status(409).json({ message: "You have already applied to this post." });
     }
 
-    const application = new Application({ postId, studentEmail });
+    // Get entrepreneurEmail and jobRole from the Post
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const application = new Application({
+      postId,
+      studentEmail,
+      entrepreneurEmail: post.entrepreneurEmail,
+      jobRole: post.jobRole,
+    });
+
     await application.save();
 
     res.status(201).json({ message: "Application submitted successfully", application });
@@ -25,16 +38,14 @@ exports.submitApplication = async (req, res) => {
   }
 };
 
-
+// Get all applications received by an entrepreneur
 exports.getApplicationsByEntrepreneur = async (req, res) => {
   try {
     const entrepreneurEmail = req.params.email;
 
-    // Find all posts created by this entrepreneur
     const posts = await Post.find({ entrepreneurEmail });
     const postIds = posts.map(post => post._id);
 
-    // Find applications to those posts
     const applications = await Application.find({ postId: { $in: postIds } });
 
     res.status(200).json(applications);
