@@ -35,9 +35,12 @@ export default function Login() {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       if (data.user && data.token) {
+        // ✅ Save user details in localStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.user.role);
+        localStorage.setItem("email", data.user.email); // ✅ Add this line
 
+        // Redirect to respective dashboard
         if (data.user.role === "student") {
           navigate("/student-dashboard");
         } else if (data.user.role === "entrepreneur") {
