@@ -7,6 +7,10 @@ const postSchema = new mongoose.Schema({
   duration: String,
   stipend: String,
   openings: Number,
+  entrepreneurEmail: {
+    type: String,
+    required: true,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Post", postSchema);

@@ -25,13 +25,20 @@ export default function EntrepreneurDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const entrepreneurEmail = localStorage.getItem("email"); // ✅ get email from localStorage
+
       const res = await fetch("http://localhost:5000/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          entrepreneurEmail, // ✅ include email in request
+        }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create post");
+
       alert("Post created successfully!");
       setShowForm(false);
       setFormData({
@@ -76,6 +83,7 @@ export default function EntrepreneurDashboard() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Post a Startup Idea */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">
               Post a Startup Idea
@@ -151,6 +159,7 @@ export default function EntrepreneurDashboard() {
             )}
           </div>
 
+          {/* Manage Applications */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">
               Manage Applications
