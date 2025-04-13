@@ -1,5 +1,7 @@
 const Post = require("../models/Post");
+const Application = require("../models/Application"); // ✅ required to count applications
 
+// Create a new post
 const createPost = async (req, res) => {
   try {
     const {
@@ -9,7 +11,7 @@ const createPost = async (req, res) => {
       duration,
       stipend,
       openings,
-      entrepreneurEmail, // ✅ must be included
+      entrepreneurEmail,
     } = req.body;
 
     if (!entrepreneurEmail) {
@@ -34,10 +36,24 @@ const createPost = async (req, res) => {
   }
 };
 
+// Get all posts with application counts
 const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find();
-    res.status(200).json(posts);
+
+    // Attach application count for each post
+    const postsWithApplicationCount = await Promise.all(
+      posts.map(async (post) => {
+        const applicationCount = await Application.countDocuments({ postId: post._id });
+
+        return {
+          ...post._doc, // spread original post data
+          applicationCount, // attach application count
+        };
+      })
+    );
+
+    res.status(200).json(postsWithApplicationCount);
   } catch (error) {
     console.error("Error fetching posts:", error.message);
     res.status(500).json({ message: "Internal Server Error" });

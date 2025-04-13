@@ -77,6 +77,7 @@ export default function StudentDashboard() {
       }
 
       alert("✅ Application submitted successfully!");
+      fetchPosts(); // Refresh post data to update applicationCount
     } catch (err) {
       console.error("❌ Error submitting application:", err);
       alert(`❌ ${err.message}`);
@@ -131,37 +132,50 @@ export default function StudentDashboard() {
             {showPosts && (
               <div className="mt-6 space-y-4">
                 {posts.length > 0 ? (
-                  posts.map((post) => (
-                    <div
-                      key={post._id}
-                      className="border border-gray-300 dark:border-zinc-800 rounded-lg p-4"
-                    >
-                      <h3 className="text-lg font-semibold text-neutral-800 dark:text-white">
-                        {post.role}
-                      </h3>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                        {post.description}
-                      </p>
-                      <p className="text-sm mt-2">
-                        <strong>Skills:</strong> {post.skills}
-                      </p>
-                      <p className="text-sm">
-                        <strong>Duration:</strong> {post.duration}
-                      </p>
-                      <p className="text-sm">
-                        <strong>Stipend:</strong> ₹{post.stipend}
-                      </p>
-                      <p className="text-sm">
-                        <strong>Openings:</strong> {post.openings}
-                      </p>
-                      <button
-                        onClick={() => handleApply(post._id)}
-                        className="mt-2 px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
+                  posts.map((post) => {
+                    const isFull =
+                      post.applicationCount >= post.openings;
+
+                    return (
+                      <div
+                        key={post._id}
+                        className="border border-gray-300 dark:border-zinc-800 rounded-lg p-4"
                       >
-                        Apply
-                      </button>
-                    </div>
-                  ))
+                        <h3 className="text-lg font-semibold text-neutral-800 dark:text-white">
+                          {post.jobRole}
+                        </h3>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                          {post.description}
+                        </p>
+                        <p className="text-sm mt-2">
+                          <strong>Skills:</strong> {post.skills}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Duration:</strong> {post.duration}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Stipend:</strong> ₹{post.stipend}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Openings:</strong> {post.openings}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Applications:</strong> {post.applicationCount}
+                        </p>
+                        <button
+                          onClick={() => handleApply(post._id)}
+                          className={`mt-2 px-3 py-1 text-white rounded-md text-sm ${
+                            isFull
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-green-600 hover:bg-green-700"
+                          }`}
+                          disabled={isFull}
+                        >
+                          {isFull ? "Full – Applications Closed" : "Apply"}
+                        </button>
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className="text-neutral-600 dark:text-neutral-300">
                     No posts found.
@@ -198,7 +212,7 @@ export default function StudentDashboard() {
                       key={index}
                       className="p-3 border rounded-md text-sm dark:text-white dark:border-zinc-700"
                     >
-                      <p>📌 <strong>Post ID:</strong> {app.jobRole}</p>
+                      <p>📌 <strong>Role:</strong> {app.jobRole}</p>
                       <p>
                         📄 <strong>Status:</strong>{" "}
                         <span
